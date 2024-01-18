@@ -2,6 +2,8 @@ package main
 
 import (
 	"fmt"
+	"html/template"
+	"log"
 	"net/http"
 	"strconv"
 )
@@ -13,7 +15,22 @@ func home(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, err := w.Write([]byte("Hello, SnippetBox!"))
+	// Initialize a slice containing the paths to the two files.
+	files := []string{
+		"./ui/html/base.tmpl",
+		"./ui/html/partials/nav.tmpl",
+		"./ui/html/pages/home.tmpl",
+	}
+
+	// Use the template.ParseFiles() function to read the files and store the templates in a template set.
+	ts, err := template.ParseFiles(files...)
+	if err != nil {
+		log.Println(err.Error())
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
+	err = ts.ExecuteTemplate(w, "base", nil)
 	if err != nil {
 		return
 	}
